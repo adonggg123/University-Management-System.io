@@ -110,8 +110,6 @@ body{
   }
   
 
-
-
 .main--content{
     position: relative;
     background: #ebe9e9;
@@ -143,7 +141,7 @@ body{
     align-items: center;
     gap: 1rem;
 }
-.search--box{
+.search--box {
     background: rgba(237, 237, 237);
     border-radius: 15px;
     color: rgba(22, 2, 67);
@@ -151,19 +149,23 @@ body{
     align-items: center;
     gap: 10px;
     padding: 4px 12px;
-}
-.search--box input{
+  }
+  .search--box input {
     background: transparent;
     padding: 5px;
-}
-.search--box i{
+    border: none;
+    outline: none;
+  }
+  .search--box i {
     font-size: 1.2rem;
     cursor: pointer;
     transition: all 0.5s ease-out;
-}
-.search--box i:hover {
+  }
+  .search--box i:hover {
     transform: scale(1.2);
-}
+  }
+  
+
 
 
 .card--container{
@@ -269,16 +271,16 @@ table{
 }
 thead{
     background: rgb(22, 2, 67);
-    color: #fff;
+    color: white !important; 
 }
-th{
+.sample-table th{
     padding: 15px;
     text-align: left;
 }
 tbody{
     background: #f2f2f2;
 }
-td{
+.sample-table td{
     padding: 15px;
     font-size: 14px;
     color: #333;
@@ -291,7 +293,7 @@ tfoot{
     font-weight: bold;
     color: #fff;
 }
-tfoot td {
+.sample-table tfoot td {
     padding: 15px;
     color: #fff;
 }
@@ -300,4 +302,11 @@ tfoot td {
     background: none;
     cursor: pointer;
 }
-
+.dropdown-container {
+    display: none;
+    list-style: none;
+    padding-left: 20px;
+  }
+  .sidebar .menu li a.dropdown-btn.active + .dropdown-container {
+    display: block;
+  }

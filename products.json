@@ -1,0 +1,87 @@
+[
+    {
+        "id": 1,
+        "name":" Kikiam",
+        "price": 10,
+        "image": "img/20347187.png"
+    },
+    {
+        "id": 2,
+        "name":" Fish Flat",
+        "price": 10,
+        "image": "img/images (1).png"
+    },
+    {
+        "id": 3,
+        "name":" Siomai",
+        "price": 20,
+        "image": "img/shomai.png"
+    },
+    {
+        "id": 4,
+        "name":" Kwek-Kwek",
+        "price": 10,
+        "image": "img/kwek-kwek.png"
+    },
+    {
+        "id": 5,
+        "name":" Tempura",
+        "price": 10,
+        "image": "img/tempura.png"
+    },
+    {
+        "id": 6,
+        "name":" Squid Roll",
+        "price": 20,
+        "image": "img/squid-roll.png"
+    },
+    {
+        "id": 7,
+        "name":" Squid Balls",
+        "price": 20,
+        "image": "img/squid-ball.png"
+    },
+    {
+        "id": 8,
+        "name":"Burger ",
+        "price": 30,
+        "image": "img/burger.png"
+    },
+    {
+        "id": 9,
+        "name": "Drinks",
+        "pice": 10,
+        "image": "img/soft.png"
+    },
+    {
+        "id": 10,
+        "name": "Nuggets",
+        "pice": 10,
+        "image": "img/nuggets.png"
+    },
+    {
+        "id": 11,
+        "name": "Blue Lemonade",
+        "price": 10,
+        "image": "img/lemon.png"
+    },
+    {
+        "id": 12,
+        "name": "Cocumber Juice",
+        "price": 10,
+        "image": "img/cocumber.png"
+    },
+    {
+        "id": 12,
+        "name": "Hotdog Jumbo",
+        "price": 10,
+        "image": "img/TASTY-MEATY-HOTDOG-WITH-CHEESE-JUMBO-500G-2.png"
+    },
+    {
+        "id": 13,
+        "name": "Hotdog Balls",
+        "price": 10,
+        "image": "img/hotdog-balls.png"
+    }
+
+]
