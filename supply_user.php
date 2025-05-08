@@ -32,33 +32,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
         $conn->query("UPDATE borrow_requests SET notified = 1 WHERE user_id = $user_id AND status = 'approved'");
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_name'], $_POST['user_type'], $_POST['item_name'], $_POST['quantity'])) {
-        $user_name = $_POST['user_name'];
-        $user_type = $_POST['user_type'];
-        $item_name = $_POST['item_name'];
-        $quantity = $_POST['quantity'];
+    if (isset($_POST['borrow_request'])) {
+        $user_name = mysqli_real_escape_string($conn, $_POST['user_name']);
+        $item_name = mysqli_real_escape_string($conn, $_POST['item_name']);
+        $quantity = intval($_POST['quantity']);
+        $user_type = mysqli_real_escape_string($conn, $_POST['user_type']);
     
-        // Insert into borrow_requests table
-        $stmt = $conn->prepare("INSERT INTO borrow_requests (user_name, user_type, item_name, quantity, status) VALUES (?, ?, ?, ?, 'pending')");
-        $stmt->bind_param("sssi", $user_name, $user_type, $item_name, $quantity);
-        $stmt->execute();
+        $sql = "INSERT INTO borrow_requests (user_name, item_name, quantity, user_type, status, created_at) 
+                VALUES ('$user_name', '$item_name', $quantity, '$user_type', 'pending', NOW())";
     
-        // Redirect to the same page after submission
-        header("Location: supply_user.php?success=1");
-        exit;
+        if ($conn->query($sql)) {
+            echo "<script>alert('Request submitted successfully!');</script>";
+        } else {
+            echo "<script>alert('Error: " . $conn->error . "');</script>";
+        }
     }
-}
+    
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User</title>
-    <link rel="stylesheet" href="style1.css?v=<?php echo time(); ?>">
-        <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
-        <link rel="stylesheet" href="supply.css?v=<?php echo time(); ?>">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>User</title>
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJtJ7tJkPmcV9f9fGvGkUuJkqMX6IQWuK/4hDh3KpWwW9Dptf4U/JpP4OmVZ" crossorigin="anonymous">
@@ -104,7 +101,7 @@ $unread_count = $conn->query("SELECT COUNT(*) AS count FROM borrow_requests WHER
                         <div class="mb-3">
                             <label for="user_type" class="form-label">User Type</label>
                             <select name="user_type" id="user_type" class="form-control" required>
-                                <option value="" disabled selected>Select your type</option>
+                                <option value="" disabled selected hidden>Select your type</option>
                                 <option value="Faculty">Faculty</option>
                                 <option value="USG Officer">USG Officer</option>
                                 <option value="SITE Officer">SITE Officer</option>

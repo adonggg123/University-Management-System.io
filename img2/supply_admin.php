@@ -1,6 +1,8 @@
 <?php
 include 'db_conn.php';
 
+        require_once __DIR__ . '/path/to/your/db_conn.php'; // include DB connection here
+
         // Handle add supply
         if (isset($_POST['add_supply'])) {
             $item_name = $_POST['item_name'];
@@ -61,22 +63,32 @@ include 'db_conn.php';
 
             $borrow_list = $conn->query("SELECT * FROM borrow_requests WHERE status = 'pending' ORDER BY created_at DESC");
             $unread_count = $borrow_list->num_rows;
-            
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'])) {
+        
+        
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['id'])) {
                 $id = intval($_POST['id']);
-                $status = $_POST['action'] === 'approve' ? 'approved' : 'disapproved';
-
-                // Update the borrow request status
-                $stmt = $conn->prepare("UPDATE borrow_requests SET status = ? WHERE id = ?");
-                $stmt->bind_param("si", $status, $id);
-                $stmt->execute();
-
-                // Optionally, notify the user if approved (via email, SMS, etc.)
-                if ($status === 'approved') {
-                    $conn->query("UPDATE borrow_requests SET notified = 1 WHERE id = $id");
+                $action = $_POST['action'];
+                
+                if ($action === 'approve') {
+                    $status = 'approved';
+                } else if ($action === 'disapprove') {
+                    $status = 'disapproved';
+                } else {
+                    // Invalid action
+                    header("Location: supply_admin.php");
+                    exit;
                 }
-
-                // Redirect to the admin page
+                
+                // Update the request status
+                $sql = "UPDATE borrow_requests SET status = '$status' WHERE id = $id";
+                
+                if ($conn->query($sql)) {
+                    echo "<script>alert('Request has been $status successfully!'); window.location.href = 'supply_admin.php';</script>";
+                } else {
+                    echo "<script>alert('Error updating request: " . $conn->error . "'); window.location.href = 'supply_admin.php';</script>";
+                }
+            } else {
+                // Redirect if accessed directly without proper parameters
                 header("Location: supply_admin.php");
                 exit;
             }
@@ -123,11 +135,14 @@ include 'db_conn.php';
                     </div>
 
                     <?php
+                    
                     $unread_count = $conn->query("SELECT COUNT(*) AS count FROM borrow_requests WHERE status = 'pending'")->fetch_assoc()['count'];
                     ?>
+
+                    <!-- Notification Icon -->
                     <div class="notification-wrapper text-end mb-2">
                         <a href="#" data-bs-toggle="modal" data-bs-target="#borrowRequestModal">
-                          <i class="fas fa-bell" style="color: black;"></i>
+                            <i class="fas fa-bell" style="color: black;"></i>
                             <?php if ($unread_count > 0): ?>
                                 <span class="badge" id="notification-badge"><?php echo $unread_count; ?></span>
                             <?php endif; ?>
@@ -215,41 +230,35 @@ include 'db_conn.php';
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="borrowRequestModalLabel">Pending Borrow Requests</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <?php if ($unread_count > 0): ?>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-hover">
-                                            <thead class="table-warning text-center">
-                                                <tr><th>ID</th><th>Name</th><th>User Type</th><th>Item Name</th><th>Quantity</th><th>Date</th><th>Action</th></tr>
-                                            </thead>
-                                            <tbody>
-                                            <?php
-                                            $borrow_list = $conn->query("SELECT * FROM borrow_requests WHERE status = 'pending' ORDER BY id DESC");
-                                            while ($row = $borrow_list->fetch_assoc()): ?>
+                                    <table class="table table-bordered table-hover">
+                                        <thead class="table-warning text-center">
+                                            <tr><th>ID</th><th>Name</th><th>User Type</th><th>Item Name</th><th>Quantity</th><th>Date</th><th>Action</th></tr>
+                                        </thead>
+                                        <tbody>
+                                        <?php
+                                        $borrow_list = $conn->query("SELECT * FROM borrow_requests WHERE status = 'pending' ORDER BY id DESC");
+                                        while ($row = $borrow_list->fetch_assoc()): ?>
                                             <tr class="fade-request" data-id="<?= $row['id'] ?>">
-                                                    <td><?= $row['id'] ?></td>
-                                                    <td><?= htmlspecialchars($row['user_name']) ?></td>
-                                                    <td><?= htmlspecialchars($row['user_type']) ?></td>
-                                                    <td><?= $row['item_name'] ?></td>
-                                                    <td><?= $row['quantity'] ?></td>
-                                                    <td><?= $row['created_at'] ?></td>
-                                                    <td class="text-center">
-                                                        <form method="POST" action="process_request.php" class="d-inline">
-                                                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                                            <button name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
-                                                            <button name="action" value="disapprove" class="btn btn-danger btn-sm">Disapprove</button>
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                                <?php endwhile; ?>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <?php else: ?>
-                                    <p class="text-muted text-center">No pending borrow requests.</p>
-                                    <?php endif; ?>
+                                                <td><?= $row['id'] ?></td>
+                                                <td><?= htmlspecialchars($row['user_name']) ?></td>
+                                                <td><?= htmlspecialchars($row['user_type']) ?></td> 
+                                                <td><?= htmlspecialchars($row['item_name']) ?></td>
+                                                <td><?= $row['quantity'] ?></td>
+                                                <td><?= $row['created_at'] ?></td>
+                                                <td class="text-center">
+                                                    <form method="POST" action="process_request.php" class="d-inline">
+                                                        <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                                        <button name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                                                        <button name="action" value="disapprove" class="btn btn-danger btn-sm">Disapprove</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <?php endwhile; ?>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
