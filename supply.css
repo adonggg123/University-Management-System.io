@@ -1,159 +1,66 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+
+.inventory-header {
+    background-color: rgb(22, 2, 76);
+    padding: 8px 12px;
+    border-radius: 10px;
+    margin-top: 0;
+    display: inline-flex;
+    align-items: center;
+}
 
 h2 {
     text-align: center;
     color: rgb(22, 2, 76);
-    margin-bottom: 80px;
-    font-family: "Poppins", "sans-serif";
+    margin-bottom: 10px;
 }
 
-.supply-table table{
-    width: 500px;
-    border-collapse: collapse;
-    margin-top: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    font-family: Arial, sans-serif;
+.supply-icon{
+    color: white;
+    margin-left: 5px;
 }
 
-thead {
-    background-color: rgb(22, 2, 76);
-    color: #ffffff;
-}
-
-.supply-table th,
-.supply-table td {
-    padding: 5px 20px; 
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    font-size: 0.85rem; 
-    line-height: 1.2; 
-}
-
-
-.supply-table thead th {
-    padding: 10px 12px;
-    background-color: rgb(22, 2, 76);
-    color: #fff;
-}
-
-
-tr:hover {
-    background-color: #f2f2f2;
-}
-
-tbody tr:last-child td {
-    border-bottom: none;
+.supply-font {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    color: white;
+    margin-left: 2px;
 }
 
 h4 {
     color: rgb(22, 2, 76);
-    font-family:  "Poppins", "sans-serif";
-    margin-top: 20px;
     margin-bottom: 15px;
 }
 
-form{
-    background-color: #f9f9f9;
-    padding: 0;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    max-width: 100%;
-    margin-bottom: 30px;
-    font-family: Arial, sans-serif;
+h4.supply {
+    margin-top: 0; 
 }
 
-form select,
-form input[type="number"],
-form button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 1rem;
-}
-
-form select:focus,
-form input:focus {
-    border-color: rgb(22, 2, 76);
-    outline: none;
-}
-
-form button {
-    background-color: rgb(22, 2, 76);
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-form button:hover {
-    background-color: rgb(35, 10, 100);
-}
-
-.right-section {
-    flex: 1;
-    min-width: 300px;
-}
-.content-wrapper {
-    background: rgba(236, 236, 254);
-    padding: 20px;
-    display: flex;
-    gap: 40px;
-    align-items: flex-start;
-    margin-top: 0;
-}
-
-.left-section, .right-section {
-    flex: 1;
-    min-width: 300px;
-}
-form button[name="delete_supply"] {
-    background-color: crimson;
-    color: white;   
-    border: none;
-    padding: 6px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-
-form button[name="delete_supply"]:hover {
-    background-color: darkred;
-}
 .custom-form {
     background-color: #f9f9f9;
     padding: 20px;
     border: 1px solid #ddd;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    max-width: 60%;
-    width: 100%;
     margin-bottom: 30px;
-    font-family: Arial, sans-serif;
 }
 
 .custom-form label {
-    display: block;
-    margin-bottom: 6px;
     color: rgb(22, 2, 76);
     font-weight: bold;
 }
 
-.custom-form input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
+.custom-form button {
+    background-color: rgb(22, 2, 76);
+    color: white;
+    border: none;
     border-radius: 8px;
-    font-size: 1rem;
-    box-sizing: border-box;
+    transition: background-color 0.3s ease;
 }
+
+.custom-form button:hover {
+    background-color: rgb(35, 10, 100);
+}
+
 .icon-button {
     background: none;
     border: none;
@@ -167,31 +74,14 @@ form button[name="delete_supply"]:hover {
     color: #a50f1a;
 }
 
-.custom-form input:focus {
-    border-color: rgb(22, 2, 76);
-    outline: none;
-}
-
-.custom-form button {
-    width: 50%;
-    padding: 10px;
-    background-color: rgb(22, 2, 76);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-}
-
-.custom-form button:hover {
-    background-color: rgb(35, 10, 100);
+.table-responsive {
+    margin-top: 20px;
+    position: relative;
 }
 
 .notification-wrapper {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    right: 50px; 
     font-size: 1.5rem;
     color: rgb(22, 2, 76);
     cursor: pointer;
@@ -199,8 +89,7 @@ form button[name="delete_supply"]:hover {
 
 .notification-wrapper .badge {
     position: absolute;
-    top: -5px;
-    right: -10px;
+    right: 2px;   
     background: red;
     color: white;
     padding: 2px 6px;
@@ -208,3 +97,17 @@ form button[name="delete_supply"]:hover {
     font-size: 0.7rem;
 }
 
+.supply-table {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.supply-table th {
+    background-color: rgb(22, 2, 76);
+    color: #fff;
+}
+
+.supply-table tr:hover {
+    background-color: #f2f2f2;
+}
