@@ -78,7 +78,7 @@ require_once __DIR__ . '/db_conn.php';
                 }
                 
                 // Update the request status
-                $sql = "UPDATE borrow_requests SET status = '$status' WHERE id = $id";
+                $sql = "UPDATE borrow_requests SET status = '$status', user_notified = " . ($status === 'approved' ? 0 : 1) . " WHERE id = $id";
                 
                 if ($conn->query($sql)) {
                     echo "<script>alert('Request has been $status successfully!'); window.location.href = 'supply_admin.php';</script>";
@@ -238,7 +238,7 @@ require_once __DIR__ . '/db_conn.php';
                                         <?php
                                         $borrow_list = $conn->query("SELECT * FROM borrow_requests WHERE status = 'pending' ORDER BY id DESC");
                                         while ($row = $borrow_list->fetch_assoc()): ?>
-                                            <tr class="fade-request" data-id="<?= $row['id'] ?>">
+                                            <tr class="fade-request" data-id="<?= $row['id'] ?>" data-created="<?= strtotime($row['created_at']) * 1000 ?>"">
                                                 <td><?= $row['id'] ?></td>
                                                 <td><?= htmlspecialchars($row['user_name']) ?></td>
                                                 <td><?= htmlspecialchars($row['user_type']) ?></td> 
@@ -246,7 +246,7 @@ require_once __DIR__ . '/db_conn.php';
                                                 <td><?= $row['quantity'] ?></td>
                                                 <td><?= $row['created_at'] ?></td>
                                                 <td class="text-center">
-                                                    <form method="POST" action="process_request.php" class="d-inline">
+                                                    <form method="POST" action="supply_admin.php" class="d-inline">
                                                         <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                                         <button name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
                                                         <button name="action" value="disapprove" class="btn btn-danger btn-sm">Disapprove</button>
@@ -262,13 +262,19 @@ require_once __DIR__ . '/db_conn.php';
                     </div>
                     
                     <script>
-                        setTimeout(() => {
+                    setTimeout(() => {
+                        const now = Date.now();
                         document.querySelectorAll('.fade-request').forEach(row => {
-                            row.style.transition = 'opacity 1s ease';
-                            row.style.opacity = '0';
-                            setTimeout(() => row.remove(), 1000); 
+                            const created = parseInt(row.getAttribute('data-created'));
+                            const age = now - created;
+
+                            if (age > 60000) { // older than 1 minute
+                                row.style.transition = 'opacity 1s ease';
+                                row.style.opacity = '0';
+                                setTimeout(() => row.remove(), 1000);
+                            }
                         });
-                    }, 60000); /
+                    }, 180000); // check after 10 seconds
                     </script>
 
                     <script>
@@ -298,6 +304,20 @@ require_once __DIR__ . '/db_conn.php';
                                     });
                             });
                         }
+                    });
+                    </script>
+
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const borrowModal = document.getElementById('borrowRequestModal');
+
+                        borrowModal.addEventListener('shown.bs.modal', function () {
+                            // Remove notification badge
+                            fetch('mark_notifications_read.php').then(() => {
+                                const badge = document.getElementById('notification-badge');
+                                if (badge) badge.remove();
+                            });
+                        });
                     });
                     </script>
 

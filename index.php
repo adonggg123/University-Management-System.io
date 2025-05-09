@@ -430,32 +430,23 @@ include 'db_conn.php';
                     });
                     </script>
 
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const borrowModal = document.getElementById('borrowRequestModal');
+
+                        borrowModal.addEventListener('shown.bs.modal', function () {
+                            // Remove notification badge
+                            fetch('mark_notifications_read.php').then(() => {
+                                const badge = document.getElementById('notification-badge');
+                                if (badge) badge.remove();
+                            });
+                        });
+                    });
+                    </script>
+
             <!-- Bootstrap JS (optional for dropdowns/modal etc) -->
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         </div>
-
-        <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const borrowModal = document.getElementById('borrowRequestModal');
-
-            borrowModal.addEventListener('shown.bs.modal', function () {
-                // Remove notification badge
-                fetch('mark_notifications_read.php').then(() => {
-                    const badge = document.getElementById('notification-badge');
-                    if (badge) badge.remove();
-                });
-
-                // Auto-close modal after 5 seconds
-                setTimeout(function () {
-                    const modalInstance = bootstrap.Modal.getInstance(borrowModal);
-                    if (modalInstance) modalInstance.hide();
-                }, 5000);
-            });
-        });
-        </script>
-
-            <!-- Bootstrap JS (optional for dropdowns/modal etc) -->
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </div>
 
     <div id="library" class="content">

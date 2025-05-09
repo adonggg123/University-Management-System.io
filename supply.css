@@ -87,7 +87,7 @@ h4.supply {
     cursor: pointer;
 }
 
-.notification-wrapper .badge {
+.notification-wrapper #notification-badge {
     position: absolute;
     right: 2px;   
     background: red;
