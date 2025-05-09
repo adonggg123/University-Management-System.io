@@ -1,53 +1,53 @@
-<?php
-include 'db_conn.php';
+<?php 
+session_start(); 
+require_once __DIR__ . '/db_conn.php';
 
+// Initialize variables
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
+$item_name = '';
+$quantity = 0;
+
+// Form handling - there were two separate handlers which is causing issues
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
-    $item_name = $_POST['item_name'];
-    $quantity = $_POST['quantity'];
+    // Get values from the form
+    $user_name = mysqli_real_escape_string($conn, $_POST['user_name']);
+    $item_name = mysqli_real_escape_string($conn, $_POST['item_name']);
+    $quantity = intval($_POST['quantity']);
+    $user_type = mysqli_real_escape_string($conn, $_POST['user_type']);
+    
+    // Insert into database with proper field names
+    $sql = "INSERT INTO borrow_requests (user_name, item_name, quantity, user_type, status, created_at) 
+            VALUES ('$user_name', '$item_name', $quantity, '$user_type', 'pending', NOW())";
+    
+    if ($conn->query($sql)) {
+        // Insert notification for borrow
+        $note = "New borrow request: $item_name ($quantity pcs)";
+        $conn->query("INSERT INTO notifications (message, status, type) VALUES ('$note', 'unread', 'borrow')");
+        
+        echo "<script>alert('Request submitted successfully!');</script>";
+    } else {
+        echo "<script>alert('Error: " . $conn->error . "');</script>";
+    }
+}
 
-    // Insert into borrow_requests
-    $stmt = $conn->prepare("INSERT INTO borrow_requests (item_name, quantity, status) VALUES (?, ?, 'pending')");
-    $stmt->bind_param("si", $item_name, $quantity);
-    $stmt->execute();
-
-    // Insert notification for borrow
-    $note = "New borrow request: $item_name ($quantity pcs)";
-    $conn->query("INSERT INTO notifications (message, status, type) VALUES ('$note', 'unread', 'borrow')");
-
-    header('Location: supply_user.php');
+// Handle approve/disapprove actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'])) {
+    $id = intval($_POST['id']);
+    $status = $_POST['action'] === 'approve' ? 'approved' : 'disapproved';
+    $notified = $status === 'approved' ? 0 : 1; // notify only for approved
+    $conn->query("UPDATE borrow_requests SET status = '$status', notified = $notified WHERE id = $id");
+    header("Location: supply_admin.php");
     exit;
+}
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'])) {
-        $id = intval($_POST['id']);
-        $status = $_POST['action'] === 'approve' ? 'approved' : 'disapproved';
-        $notified = $status === 'approved' ? 0 : 1; // notify only for approved
-        $conn->query("UPDATE borrow_requests SET status = '$status', notified = $notified WHERE id = $id");
-        header("Location: supply_admin.php");
-    }
+// Get notifications - modified to not use user_id since it doesn't exist in your table
+$approved_notifications = $conn->query("SELECT * FROM borrow_requests WHERE status = 'approved' AND notified = 0");
+$notif_count = $approved_notifications ? $approved_notifications->num_rows : 0;
 
-    $approved_notifications = $conn->query("SELECT * FROM borrow_requests WHERE user_id = $user_id AND status = 'approved' AND notified = 0");
-    $notif_count = $approved_notifications->num_rows;
-
-    if (isset($_GET['view_notifications'])) {
-        $conn->query("UPDATE borrow_requests SET notified = 1 WHERE user_id = $user_id AND status = 'approved'");
-    }
-
-    if (isset($_POST['borrow_request'])) {
-        $user_name = mysqli_real_escape_string($conn, $_POST['user_name']);
-        $item_name = mysqli_real_escape_string($conn, $_POST['item_name']);
-        $quantity = intval($_POST['quantity']);
-        $user_type = mysqli_real_escape_string($conn, $_POST['user_type']);
-    
-        $sql = "INSERT INTO borrow_requests (user_name, item_name, quantity, user_type, status, created_at) 
-                VALUES ('$user_name', '$item_name', $quantity, '$user_type', 'pending', NOW())";
-    
-        if ($conn->query($sql)) {
-            echo "<script>alert('Request submitted successfully!');</script>";
-        } else {
-            echo "<script>alert('Error: " . $conn->error . "');</script>";
-        }
-    }
-    
+// Mark notifications as read - modified to not use user_id
+if (isset($_GET['view_notifications'])) {
+    $conn->query("UPDATE borrow_requests SET notified = 1 WHERE status = 'approved'");
+}
 ?>
 
 <!DOCTYPE html>
@@ -56,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>User</title>
+        <link rel="stylesheet" href="supply.css?v=<?php echo time(); ?>">
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJtJ7tJkPmcV9f9fGvGkUuJkqMX6IQWuK/4hDh3KpWwW9Dptf4U/JpP4OmVZ" crossorigin="anonymous">
@@ -76,6 +77,11 @@ $unread_count = $conn->query("SELECT COUNT(*) AS count FROM borrow_requests WHER
             <span class="badge" id="notification-badge"><?php echo $unread_count; ?></span>
         <?php endif; ?>
     </a>
+</div>
+
+<div class="d-flex align-items-center gap-2 mb-3 inventory-header">
+    <i class="fas fa-dolly-flatbed fa-2x supply-icon"></i>
+    <h2 class="supply supply-font">Inventory Management</h2>
 </div>
 
  <!-- Request -->

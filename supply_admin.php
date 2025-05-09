@@ -1,7 +1,5 @@
 <?php
-include 'db_conn.php';
-
-        require_once __DIR__ . '/path/to/your/db_conn.php'; // include DB connection here
+require_once __DIR__ . '/db_conn.php';
 
         // Handle add supply
         if (isset($_POST['add_supply'])) {
@@ -75,8 +73,8 @@ include 'db_conn.php';
                     $status = 'disapproved';
                 } else {
                     // Invalid action
-                    header("Location: supply_admin.php");
-                    exit;
+                   // header("Location: supply_admin.php");
+                   // exit;
                 }
                 
                 // Update the request status
@@ -89,8 +87,8 @@ include 'db_conn.php';
                 }
             } else {
                 // Redirect if accessed directly without proper parameters
-                header("Location: supply_admin.php");
-                exit;
+               // header("Location: supply_admin.php");
+               // exit;
             }
 ?>
 
@@ -101,18 +99,17 @@ include 'db_conn.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin</title>
     <link rel="stylesheet" href="style1.css?v=<?php echo time(); ?>">
-        <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
-        <link rel="stylesheet" href="supply.css?v=<?php echo time(); ?>">
-        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJtJ7tJkPmcV9f9fGvGkUuJkqMX6IQWuK/4hDh3KpWwW9Dptf4U/JpP4OmVZ" crossorigin="anonymous">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0v8FqI1P+8zUuK0CptlX+u0xP1z5DiH1ua7Tgpm2U4B7w+My" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="supply.css?v=<?php echo time(); ?>">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJtJ7tJkPmcV9f9fGvGkUuJkqMX6IQWuK/4hDh3KpWwW9Dptf4U/JpP4OmVZ" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0v8FqI1P+8zUuK0CptlX+u0xP1z5DiH1ua7Tgpm2U4B7w+My" crossorigin="anonymous"></script>
 </head>
 <body>
 <div class="container-fluid mt-4 p-4 rounded" style="background-color:rgb(216, 216, 216);">
-    
             <div class="d-flex align-items-center gap-2 mb-3 inventory-header">
                 <i class="fas fa-dolly-flatbed fa-2x supply-icon"></i>
                 <h2 class="supply supply-font">Inventory Management</h2>
