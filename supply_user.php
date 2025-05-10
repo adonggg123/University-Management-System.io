@@ -70,15 +70,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
 $unread_count = $conn->query("SELECT COUNT(*) AS count FROM borrow_requests WHERE status = 'approved' AND user_notified = 0")->fetch_assoc()['count'];
 ?>
 <div class="container-fluid mt-4 p-4 rounded" style="background-color:rgb(216, 216, 216);">
+    
     <div class="notification-wrapper text-end mb-2">
         <a href="#" data-bs-toggle="modal" data-bs-target="#userNotificationModal">
-            <i class="fas fa-bell" style="color: black;"></i>
+            <i class="fas fa-bell" style="color: black; font-weight: 100"></i>
             <?php if ($unread_count > 0): ?>
                 <span class="badge" id="notification-badge"><?php echo $unread_count; ?></span>
             <?php endif; ?>
         </a>
     </div>
-</div>
 
     <div class="d-flex align-items-center gap-2 mb-3 inventory-header">
         <i class="fas fa-dolly-flatbed fa-2x supply-icon"></i>
@@ -157,21 +157,23 @@ $unread_count = $conn->query("SELECT COUNT(*) AS count FROM borrow_requests WHER
         </div>
     </div>
 
+    <?php
+    $notifications = $conn->query("SELECT * FROM borrow_requests WHERE (status = 'approved' OR status = 'disapproved') AND user_notified = 0");
+    ?>
     <div class="modal fade" id="userNotificationModal" tabindex="-1" aria-labelledby="userNotificationModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="userNotificationModalLabel">Approved Requests</h5>
+                <h5 class="modal-title" id="userNotificationModalLabel">Request Updates</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <ul class="list-group">
-                <?php
-                $approved = $conn->query("SELECT * FROM borrow_requests WHERE status = 'approved' AND user_notified = 0");
-                while ($req = $approved->fetch_assoc()):
-                ?>
+                <?php while ($req = $notifications->fetch_assoc()): ?>
                     <li class="list-group-item">
-                        <?= htmlspecialchars($req['item_name']) ?> approved on <?= htmlspecialchars($req['updated_at']) ?>
+                        <?= htmlspecialchars($req['item_name']) ?> 
+                        <?= $req['status'] === 'approved' ? 'approved' : 'disapproved' ?> 
+                        on <?= htmlspecialchars($req['updated_at']) ?>
                     </li>
                 <?php endwhile; ?>
                 </ul>
@@ -215,6 +217,7 @@ document.getElementById('userNotificationModal').addEventListener('shown.bs.moda
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+</div>
 
 </body>
 </html>

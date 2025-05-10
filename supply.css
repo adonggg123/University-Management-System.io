@@ -8,6 +8,10 @@
     align-items: center;
 }
 
+.fa{ 
+    font-weight: 0 !important;
+}
+
 h2 {
     text-align: center;
     color: rgb(22, 2, 76);
@@ -111,3 +115,5 @@ h4.supply {
 .supply-table tr:hover {
     background-color: #f2f2f2;
 }
+
+

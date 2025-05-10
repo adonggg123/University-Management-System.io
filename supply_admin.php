@@ -69,8 +69,10 @@ require_once __DIR__ . '/db_conn.php';
                 
                 if ($action === 'approve') {
                     $status = 'approved';
+                    $user_notified = 0;
                 } else if ($action === 'disapprove') {
                     $status = 'disapproved';
+                    $user_notified = 1;
                 } else {
                     // Invalid action
                    // header("Location: supply_admin.php");
@@ -78,7 +80,7 @@ require_once __DIR__ . '/db_conn.php';
                 }
                 
                 // Update the request status
-                $sql = "UPDATE borrow_requests SET status = '$status', user_notified = " . ($status === 'approved' ? 0 : 1) . " WHERE id = $id";
+               $sql = "UPDATE borrow_requests SET status = '$status', user_notified = $user_notified, updated_at = NOW() WHERE id = $id";
                 
                 if ($conn->query($sql)) {
                     echo "<script>alert('Request has been $status successfully!'); window.location.href = 'supply_admin.php';</script>";
@@ -91,7 +93,6 @@ require_once __DIR__ . '/db_conn.php';
                // exit;
             }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -132,14 +133,13 @@ require_once __DIR__ . '/db_conn.php';
                     </div>
 
                     <?php
-                    
                     $unread_count = $conn->query("SELECT COUNT(*) AS count FROM borrow_requests WHERE status = 'pending'")->fetch_assoc()['count'];
                     ?>
 
                     <!-- Notification Icon -->
                     <div class="notification-wrapper text-end mb-2">
                         <a href="#" data-bs-toggle="modal" data-bs-target="#borrowRequestModal">
-                            <i class="fas fa-bell" style="color: black;"></i>
+                            <i class="fas fa-bell" style="color: black; font-weight: 100;"></i>
                             <?php if ($unread_count > 0): ?>
                                 <span class="badge" id="notification-badge"><?php echo $unread_count; ?></span>
                             <?php endif; ?>
@@ -238,7 +238,7 @@ require_once __DIR__ . '/db_conn.php';
                                         <?php
                                         $borrow_list = $conn->query("SELECT * FROM borrow_requests WHERE status = 'pending' ORDER BY id DESC");
                                         while ($row = $borrow_list->fetch_assoc()): ?>
-                                            <tr class="fade-request" data-id="<?= $row['id'] ?>" data-created="<?= strtotime($row['created_at']) * 1000 ?>"">
+                                            <tr class="fade-request" data-id="<?= $row['id'] ?>">
                                                 <td><?= $row['id'] ?></td>
                                                 <td><?= htmlspecialchars($row['user_name']) ?></td>
                                                 <td><?= htmlspecialchars($row['user_type']) ?></td> 
@@ -262,19 +262,13 @@ require_once __DIR__ . '/db_conn.php';
                     </div>
                     
                     <script>
-                    setTimeout(() => {
-                        const now = Date.now();
+                        setTimeout(() => {
                         document.querySelectorAll('.fade-request').forEach(row => {
-                            const created = parseInt(row.getAttribute('data-created'));
-                            const age = now - created;
-
-                            if (age > 60000) { // older than 1 minute
-                                row.style.transition = 'opacity 1s ease';
-                                row.style.opacity = '0';
-                                setTimeout(() => row.remove(), 1000);
-                            }
+                            row.style.transition = 'opacity 1s ease';
+                            row.style.opacity = '0';
+                            setTimeout(() => row.remove(), 1000); 
                         });
-                    }, 180000); // check after 10 seconds
+                    }, 60000); /
                     </script>
 
                     <script>
@@ -304,20 +298,6 @@ require_once __DIR__ . '/db_conn.php';
                                     });
                             });
                         }
-                    });
-                    </script>
-
-                    <script>
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const borrowModal = document.getElementById('borrowRequestModal');
-
-                        borrowModal.addEventListener('shown.bs.modal', function () {
-                            // Remove notification badge
-                            fetch('mark_notifications_read.php').then(() => {
-                                const badge = document.getElementById('notification-badge');
-                                if (badge) badge.remove();
-                            });
-                        });
                     });
                     </script>
 
