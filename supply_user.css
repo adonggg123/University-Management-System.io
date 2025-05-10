@@ -115,10 +115,10 @@
             font-weight: 600;
         }
         
-        .header-icon {
+        .user-header-icon {
             font-size: 2.5rem;
             margin-right: 15px;
-            color: var(--accent-color);
+            color: var(--accent-color) !important;
         }
         
         .form-card {
@@ -302,7 +302,9 @@
     }
     
     /* Icon styling */
-    .fa-dolly-flatbed, .fa-boxes-stacked, .fa-chart-pie, .fa-plus-circle, .fa-exchange-alt {
+    .admin-header-icon, .fa-boxes-stacked, .fa-chart-pie, .fa-plus-circle, .fa-exchange-alt {
+       font-size: 2rem; /* Or keep fa-2x if preferred */
+        margin-right: 15px;
         background: linear-gradient(135deg, #4a6cf7 0%, #2447F9 100%);
         -webkit-background-clip: text;
         background-clip: text;
