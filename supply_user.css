@@ -147,6 +147,18 @@
             }
         }
 
+
+        .header-section {
+            background-color: rgb(22, 2, 76);
+            color: white;
+            padding: 2rem 0;
+        }
+        .user-header-icon {
+            margin-right: 10px;
+        }
+        .lead {
+            opacity: 0.9;
+        }
         
  body {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -319,7 +331,7 @@
     }
     
     .fa-trash-can {
-        color: #ee5253;
+        color: white;
     }
     
     /* Notification Badge */

@@ -239,7 +239,7 @@ include 'db_conn.php';
     </div>
 
     <div id="supply" class="content">
-           <div class="container-fluid py-4">
+    <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
             <div class="card shadow-sm border-0">
