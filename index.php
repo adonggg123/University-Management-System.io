@@ -1,5 +1,5 @@
 <?php
-include 'db_conn.php';
+require_once __DIR__ . '/db_conn.php';
 
         // Handle add supply
         if (isset($_POST['add_supply'])) {
@@ -10,7 +10,7 @@ include 'db_conn.php';
             $stmt->execute();
             $note = "New supply added: $item_name ($quantity pcs)";
             $conn->query("INSERT INTO notifications (message, status) VALUES ('$note', 'unread')");
-            header('Location: index.php');
+            header('Location: supply_admin.php');
             exit;
         }
 
@@ -50,7 +50,7 @@ include 'db_conn.php';
 
                 if ($quantity >= 0) {
                     $conn->query("DELETE FROM supplies WHERE id = $delete_id");
-                    echo "<script>alert('Supply deleted successfully.'); window.location.href='index.php';</script>";
+                    echo "<script>alert('Supply deleted successfully.'); window.location.href='supply_admin.php';</script>";
                 } else {
                     echo "<script>alert('Cannot delete. Quantity must be zero. Current: $quantity'); window.location.href='index.php';</script>";
                 }
@@ -58,12 +58,40 @@ include 'db_conn.php';
                 echo "<script>alert('Supply not found.'); window.location.href='index.php';</script>";
             }
         }       
-        
-        if (isset($_GET['view_notifications'])) {
-        $conn->query("UPDATE notifications SET status = 'read' WHERE status = 'unread'");
-        }
-?>
 
+            $borrow_list = $conn->query("SELECT * FROM borrow_requests WHERE status = 'pending' ORDER BY created_at DESC");
+            $unread_count = $borrow_list->num_rows;
+        
+        
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && isset($_POST['id'])) {
+                $id = intval($_POST['id']);
+                $action = $_POST['action'];
+                if ($action === 'approve') {
+                    $status = 'approved';
+                    $user_notified = 0;
+                } else if ($action === 'disapprove') {
+                    $status = 'disapproved';
+                    $user_notified = 1; 
+                } else {
+                    // Invalid action
+                   // header("Location: supply_admin.php");
+                   // exit;
+                }
+                
+                // Update the request status
+               $sql = "UPDATE borrow_requests SET status = '$status', user_notified = $user_notified, updated_at = NOW() WHERE id = $id";
+                
+                if ($conn->query($sql)) {
+                    echo "<script>alert('Request has been $status successfully!'); window.location.href = 'supply_admin.php';</script>";
+                } else {
+                    echo "<script>alert('Error updating request: " . $conn->error . "'); window.location.href = 'supply_admin.php';</script>";
+                }
+            } else {
+                // Redirect if accessed directly without proper parameters
+               // header("Location: supply_admin.php");
+               // exit;
+            }
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -240,222 +268,349 @@ include 'db_conn.php';
 
     <div id="supply" class="content">
     <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-dolly-flatbed fa-2x text-primary me-2"></i>
-                            <h3 class="mb-0 fw-bold">Inventory Management</h3>
-                        </div>
-                        <div class="notification-wrapper">
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#borrowRequestModal" class="position-relative">
-                                <i class="fas fa-bell fs-4 text-secondary"></i>
-                                <?php
-                                $unread_count = $conn->query("SELECT COUNT(*) AS count FROM borrow_requests WHERE status = 'pending'")->fetch_assoc()['count'];
-                                if ($unread_count > 0): ?>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-badge">
-                                        <?php echo $unread_count; ?>
-                                    </span>
-                                <?php endif; ?>
-                            </a>
+        <!-- Header Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow border-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary bg-gradient p-3 rounded-circle me-3">
+                                    <i class="fas fa-dolly-flatbed fa-2x text-white"></i>
+                                </div>
+                                <div>
+                                    <h3 class="mb-0 fw-bold">Inventory Management</h3>
+                                    <p class="text-muted mb-0">Manage your supplies efficiently</p>
+                                </div>
+                            </div>
+                            <div class="notification-wrapper">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#borrowRequestModal" class="position-relative">
+                                    <div class="p-2 bg-light rounded-circle">
+                                        <i class="fas fa-bell fs-4 text-secondary"></i>
+                                        <?php if ($unread_count > 0): ?>
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-badge">
+                                                <?php echo $unread_count; ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row g-4">
-        <!-- Add New Supply Form -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="card-title mb-0"><i class="fas fa-plus-circle me-2 text-success"></i>Add New Supply</h5>
-                </div>
-                <div class="card-body">
-                    <form action="supply_admin.php" method="POST" class="custom-form">
-                        <div class="mb-3">
-                            <label for="item_name" class="form-label">Item Name</label>
-                            <input type="text" name="item_name" id="item_name" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Quantity</label>
-                            <input type="number" name="quantity" id="quantity" class="form-control" required>
-                        </div>
-                        <button type="submit" name="add_supply" class="btn btn-primary w-100">
-                            <i class="fas fa-save me-2"></i>Add Supply
-                        </button>
-                    </form>
+        <!-- Main Content Section -->
+        <div class="row g-4">
+            <!-- Add New Supply Form -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow h-100 border-0 card-add-supply">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="card-title mb-0"><i class="fas fa-plus-circle me-2 text-success"></i>Add New Supply</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="supply_admin.php" method="POST" class="custom-form">
+                            <div class="mb-3">
+                                <label for="item_name" class="form-label">Item Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-box text-primary"></i></span>
+                                    <input type="text" name="item_name" id="item_name" class="form-control" placeholder="Enter item name" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-hashtag text-primary"></i></span>
+                                    <input type="number" name="quantity" id="quantity" class="form-control" placeholder="Enter quantity" required>
+                                </div>
+                            </div>
+                            <button type="submit" name="add_supply" class="btn btn-success w-100">
+                                <i class="fas fa-save me-2"></i>Add Supply
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Purchase In/Out Form -->
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="card-title mb-0"><i class="fas fa-exchange-alt me-2 text-primary"></i>Purchase In/Out</h5>
-                </div>
-                <div class="card-body">
-                    <form class="custom-form" action="index.php" method="POST">
-                        <div class="mb-3">
-                            <label for="supply_id" class="form-label">Select Item</label>
-                            <select name="supply_id" class="form-select" required>
-                                <?php
-                                $result = $conn->query("SELECT * FROM supplies");
-                                while ($row = $result->fetch_assoc()) {
-                                    echo "<option value='{$row['id']}'>{$row['item_name']}</option>";
-                                }
-                                ?>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="quantity2" class="form-label">Quantity</label>
-                            <input type="number" name="quantity" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="action" class="form-label">Action</label>
-                            <select name="action" class="form-select" required>
-                                <option value="purchase_in">Purchase In</option>
-                                <option value="purchase_out">Purchase Out</option>
-                            </select>
-                        </div>
-                        <button type="submit" name="transaction" class="btn btn-primary w-100">
-                            <i class="fas fa-check-circle me-2"></i>Submit Transaction
-                        </button>
-                    </form>
+            <!-- Purchase In/Out Form -->
+            <div class="col-md-6 col-lg-4">
+                <div class="card shadow h-100 border-0 card-transaction">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="card-title mb-0"><i class="fas fa-exchange-alt me-2 text-primary"></i>Purchase In/Out</h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="custom-form" action="supply_admin.php" method="POST">
+                            <div class="mb-3">
+                                <label for="supply_id" class="form-label">Select Item</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-list text-primary"></i></span>
+                                    <select name="supply_id" class="form-select" required>
+                                        <?php
+                                        $result = $conn->query("SELECT * FROM supplies");
+                                        while ($row = $result->fetch_assoc()) {
+                                            echo "<option value='{$row['id']}'>{$row['item_name']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantity2" class="form-label">Quantity</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-hashtag text-primary"></i></span>
+                                    <input type="number" name="quantity" class="form-control" placeholder="Enter quantity" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="action" class="form-label">Action</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-arrows-up-down text-primary"></i></span>
+                                    <select name="action" class="form-select" required>
+                                        <option value="purchase_in">Purchase In</option>
+                                        <option value="purchase_out">Purchase Out</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" name="transaction" class="btn btn-primary w-100">
+                                <i class="fas fa-check-circle me-2"></i>Submit Transaction
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Supply Status -->
-        <div class="col-lg-4 d-flex">
-            <div class="card shadow-sm w-100 border-0">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2 text-warning"></i>Supply Status</h5>
-                </div>
-                <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-boxes-stacked fa-4x text-muted mb-3"></i>
-                        <h2 class="mb-0">
-                            <?php
-                            $total = $conn->query("SELECT COUNT(*) as count FROM supplies")->fetch_assoc()['count'];
-                            echo $total;
-                            ?>
-                        </h2>
-                        <p class="text-muted">Total Items</p>
+            <!-- Supply Status -->
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow w-100 border-0 card-status">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="card-title mb-0"><i class="fas fa-chart-pie me-2 text-warning"></i>Supply Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center">
+                            <div class="status-icon mx-auto mb-3">
+                                <i class="fas fa-boxes-stacked fa-3x text-primary"></i>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <h4 class="fw-bold mb-1">
+                                        <?php
+                                        $total_items = $conn->query("SELECT COUNT(*) as count FROM supplies")->fetch_assoc()['count'];
+                                        echo $total_items;
+                                        ?>
+                                    </h4>
+                                    <p class="text-muted mb-0"><i class="fas fa-box me-1"></i>Total Items</p>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="fw-bold mb-1">
+                                        <?php
+                                        $total_quantity = $conn->query("SELECT SUM(quantity) as total FROM supplies")->fetch_assoc()['total'] ?? 0;
+                                        echo $total_quantity;
+                                        ?>
+                                    </h4>
+                                    <p class="text-muted mb-0"><i class="fas fa-cubes me-1"></i>Total Quantity</p>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="fw-bold mb-1">
+                                        <?php
+                                        $low_stock = $conn->query("SELECT COUNT(*) as count FROM supplies WHERE quantity <= 5")->fetch_assoc()['count'];
+                                        echo $low_stock;
+                                        ?>
+                                        <?php if ($low_stock > 0): ?>
+                                            <span class="badge bg-warning ms-1"><i class="fas fa-exclamation-triangle"></i></span>
+                                        <?php endif; ?>
+                                    </h4>
+                                    <p class="text-muted mb-0"><i class="fas fa-exclamation-circle me-1"></i>Low Stock</p>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="fw-bold mb-1">
+                                        <?php
+                                        $out_of_stock = $conn->query("SELECT COUNT(*) as count FROM supplies WHERE quantity = 0")->fetch_assoc()['count'];
+                                        echo $out_of_stock;
+                                        ?>
+                                        <?php if ($out_of_stock > 0): ?>
+                                            <span class="badge bg-danger ms-1"><i class="fas fa-times-circle"></i></span>
+                                        <?php endif; ?>
+                                    </h4>
+                                    <p class="text-muted mb-0"><i class="fas fa-ban me-1"></i>Out of Stock</p>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                            <div class="d-grid gap-2">
+                                <a href="supply_admin.php?export=1" class="btn btn-outline-primary">
+                                    <i class="fas fa-file-export me-2"></i>Export Data
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- All Supplies Table -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-transparent border-0">
-                    <h5 class="card-title mb-0"><i class="fas fa-boxes-stacked me-2 text-info"></i>All Supplies</h5>
+        <!-- Recent Transactions Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow border-0 card-recent-transactions">
+                    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0"><i class="fas fa-history me-2 text-success"></i>Recent Transactions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-hashtag me-2 text-primary"></i>ID</th>
+                                        <th><i class="fas fa-info-circle me-2 text-primary"></i>Transaction Details</th>
+                                        <th><i class="fas fa-user me-2 text-primary"></i>User</th>
+                                        <th><i class="fas fa-cogs me-2 text-primary"></i>Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $transaction_list = $conn->query("SELECT * FROM notifications WHERE message LIKE 'Purchase%' ORDER BY id DESC LIMIT 10");
+                                    while ($row = $transaction_list->fetch_assoc()) {
+                                        $message = trim($row['message']);
+                                        $type = (stripos($message, 'Purchase In') === 0) ? 'Purchase In' : 'Purchase Out';
+                                        $icon = ($type === 'Purchase In') ? 'fa-arrow-down text-success' : 'fa-arrow-up text-danger';
+                                        $user_name = isset($row['user_name']) ? htmlspecialchars($row['user_name']) : 'Unknown';
+                                        error_log("Transaction Message: $message, Type: $type, User: $user_name");
+                                        echo "<tr>
+                                                <td>{$row['id']}</td>
+                                                <td>" . htmlspecialchars($message) . "</td>
+                                                <td>$user_name</td>
+                                                <td><i class='fas $icon me-2'></i>$type</td>
+                                            </tr>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Item Name</th>
-                                    <th>Quantity</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                $supply_list = $conn->query("SELECT * FROM supplies");
-                                while ($row = $supply_list->fetch_assoc()) {
-                                    echo "<tr>
-                                            <td>{$row['id']}</td>
-                                            <td>{$row['item_name']}</td>
-                                            <td>{$row['quantity']}</td>
-                                            <td class='text-center'>
-                                                <form method='POST' action='supply_admin.php' onsubmit='return confirm(\"Are you sure?\")'>
-                                                    <input type='hidden' name='delete_id' value='{$row['id']}'>
-                                                    <button type='submit' name='delete_supply' class='btn btn-danger btn-sm'>
-                                                        <i class='fas fa-trash-can'></i>
+            </div>
+        </div>
+
+        <!-- All Supplies Table -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow border-0 card-all-supplies">
+                    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0"><i class="fas fa-boxes-stacked me-2 text-info"></i>All Supplies</h5>
+                        <div class="input-group" style="max-width: 300px;">
+                            <input type="text" class="form-control" id="searchSupplies" placeholder="Search items...">
+                            <span class="input-group-text bg-primary">
+                                <i class="fas fa-search text-white"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-hashtag me-2 text-primary"></i>ID</th>
+                                        <th><i class="fas fa-box me-2 text-primary"></i>Item Name</th>
+                                        <th><i class="fas fa-cubes me-2 text-primary"></i>Quantity</th>
+                                        <th class="text-center"><i class="fas fa-cogs me-2 text-primary"></i>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $supply_list = $conn->query("SELECT * FROM supplies");
+                                    while ($row = $supply_list->fetch_assoc()) {
+                                        $quantity = $row['quantity'];
+                                        echo "<tr>
+                                                <td>{$row['id']}</td>
+                                                <td><span class='fw-medium'>{$row['item_name']}</span></td>
+                                                <td>
+                                                    <span class='badge1 bg-" .
+                                                        ($quantity > 10 ? 'success' : ($quantity > 5 ? 'warning' : 'danger')) .
+                                                        " rounded-pill px-3 py-2'>{$quantity}</span>
+                                                    " .
+                                                    ($quantity <= 5 ? "<small class='text-danger ms-2'><i class='fas fa-exclamation-triangle'></i> Low stock</small>" : "") . "
+                                                </td>
+                                                <td class='text-center'>
+                                                    <form method='POST' action='supply_admin.php' onsubmit='return confirm(\"Are you sure you want to delete this item?\")' class='d-inline-block'>
+                                                        <input type='hidden' name='delete_id' value='{$row['id']}'>
+                                                        <button type='submit' name='delete_supply' class='btn btn-danger btn-sm'>
+                                                            <i class='fas fa-trash-can'></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>";
+                                    }
+                                    ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for Borrow Requests -->
+        <div class="modal fade" id="borrowRequestModal" tabindex="-1" aria-labelledby="borrowRequestModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content border-0">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title" id="borrowRequestModalLabel">
+                            <i class="fas fa-hand-holding me-2 text-warning"></i>Pending Borrow Requests
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>User Type</th>
+                                        <th>Item Name</th>
+                                        <th>Quantity</th>
+                                        <th>Date</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php
+                                    $borrow_list = $conn->query("SELECT * FROM borrow_requests WHERE status = 'pending' ORDER BY id DESC");
+                                    while ($row = $borrow_list->fetch_assoc()): ?>
+                                        <tr class="fade-request" data-id="<?= $row['id'] ?>">
+                                            <td><?= $row['id'] ?></td>
+                                            <td><?= htmlspecialchars($row['user_name']) ?></td>
+                                            <td><span class="badge bg-info"><?= htmlspecialchars($row['user_type']) ?></span></td>
+                                            <td><?= htmlspecialchars($row['item_name']) ?></td>
+                                            <td><?= $row['quantity'] ?></td>
+                                            <td><small class="text-muted"><?= $row['created_at'] ?></small></td>
+                                            <td class="text-center">
+                                                <form method="POST" action="supply_admin.php" class="d-inline">
+                                                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                                    <button name="action" value="approve" class="btn btn-success btn-sm">
+                                                        <i class="fas fa-check me-1"></i> Approve
+                                                    </button>
+                                                    <button name="action" value="disapprove" class="btn btn-danger btn-sm">
+                                                        <i class="fas fa-times me-1"></i> Reject
                                                     </button>
                                                 </form>
                                             </td>
-                                        </tr>";
-                                }
-                                ?>
-                            </tbody>
-                        </table>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal for Borrow Requests -->
-    <div class="modal fade" id="borrowRequestModal" tabindex="-1" aria-labelledby="borrowRequestModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content border-0">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="borrowRequestModalLabel">
-                        <i class="fas fa-hand-holding me-2 text-warning"></i>Pending Borrow Requests
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>User Type</th>
-                                    <th>Item Name</th>
-                                    <th>Quantity</th>
-                                    <th>Date</th>
-                                    <th class="text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                            $borrow_list = $conn->query("SELECT * FROM borrow_requests WHERE status = 'pending' ORDER BY id DESC");
-                            while ($row = $borrow_list->fetch_assoc()): ?>
-                                <tr class="fade-request" data-id="<?= $row['id'] ?>">
-                                    <td><?= $row['id'] ?></td>
-                                    <td><?= htmlspecialchars($row['user_name']) ?></td>
-                                    <td><?= htmlspecialchars($row['user_type']) ?></td> 
-                                    <td><?= htmlspecialchars($row['item_name']) ?></td>
-                                    <td><?= $row['quantity'] ?></td>
-                                    <td><?= $row['created_at'] ?></td>
-                                    <td class="text-center">
-                                        <form method="POST" action="supply_admin.php" class="d-inline">
-                                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                            <button name="action" value="approve" class="btn btn-success btn-sm">
-                                                <i class="fas fa-check me-1"></i> Approve
-                                            </button>
-                                            <button name="action" value="disapprove" class="btn btn-danger btn-sm">
-                                                <i class="fas fa-times me-1"></i> Reject
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
+    <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Notification handling
         const borrowModal = document.getElementById('borrowRequestModal');
         if (borrowModal) {
             borrowModal.addEventListener('shown.bs.modal', function () {
@@ -481,22 +636,38 @@ include 'db_conn.php';
                     });
             });
         }
+
+        // Auto-hide requests after 60 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.fade-request').forEach(row => {
+                row.style.transition = 'opacity 1s ease';
+                row.style.opacity = '0';
+                setTimeout(() => row.remove(), 1000);
+            });
+        }, 60000);
+
+        // Search functionality
+        const searchInput = document.getElementById('searchSupplies');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const searchString = this.value.toLowerCase();
+                const rows = document.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const itemName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    if (itemName.includes(searchString)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
     });
-
-    // Auto-hide requests after 60 seconds
-    setTimeout(() => {
-        document.querySelectorAll('.fade-request').forEach(row => {
-            row.style.transition = 'opacity 1s ease';
-            row.style.opacity = '0';
-            setTimeout(() => row.remove(), 1000); 
-        });
-    }, 60000);
-</script>
-
-            <!-- Bootstrap JS (optional for dropdowns/modal etc) -->
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </script>
+</body>
+</html>
         </div>
-    </div>
 
     <div id="library" class="content">
       <h3>Library</h3>

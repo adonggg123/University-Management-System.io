@@ -45,44 +45,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
 
     // Handle approve/disapprove actions
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'])) {
-        $id = intval($_POST['id']);
-        $status = $_POST['action'] === 'approve' ? 'approved' : 'disapproved';
-        $notified = $status === 'approved' ? 0 : 1; // notify only for approved
-        $conn->query("UPDATE borrow_requests SET status = '$status', notified = $notified WHERE id = $id");
-        header("Location: supply_admin.php");
+    $id = intval($_POST['id']);
+    $status = $_POST['action'] === 'approve' ? 'approved' : 'disapproved';
+    $conn->query("UPDATE borrow_requests SET status = '$status', user_notified = 0, updated_at = NOW() WHERE id = $id");
+    
+    // Update supplies quantity if approved
+    if ($status === 'approved') {
+        $request = $conn->query("SELECT item_name, quantity FROM borrow_requests WHERE id = $id")->fetch_assoc();
+        $conn->query("UPDATE supplies SET quantity = quantity - {$request['quantity']} WHERE item_name = '{$request['item_name']}'");
+    }
+    
+    header("Location: supply_admin.php");
+    exit;
+}
+
+    // Start session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    // Database connection (ensure this is correctly set up)
+    if (!isset($conn)) {
+        // Replace with your actual database connection code
+        $conn = new mysqli("localhost", "your_username", "your_password", "your_database");
+        if ($conn->connect_error) {
+            error_log("Database connection failed: " . $conn->connect_error);
+            die("Database connection failed.");
+        }
+    }
+
+    // Determine which page to show based on GET parameter
+    $page = isset($_GET['page']) ? htmlspecialchars($_GET['page']) : 'home';
+
+    // Initialize notification count
+    $unread_count = 0;
+
+    // Count unread notifications
+    $notification_query = $conn->query("SELECT COUNT(*) AS count FROM borrow_requests WHERE (status = 'approved' OR status = 'disapproved') AND user_notified = 0");
+    if ($notification_query) {
+        $unread_count = $notification_query->fetch_assoc()['count'];
+        error_log("Unread notification count: $unread_count");
+    } else {
+        error_log("Notification count query failed: " . $conn->error);
+    }
+
+    // Mark notifications as read when viewing notifications
+    if (isset($_GET['view_notifications']) && $_GET['view_notifications'] == 1) {
+        error_log("Attempting to mark notifications as read for page: $page");
+        $conn->begin_transaction();
+        $update_query = $conn->query("UPDATE borrow_requests SET user_notified = 1 WHERE (status = 'approved' OR status = 'disapproved') AND user_notified = 0");
+        if ($update_query) {
+            $affected_rows = $conn->affected_rows;
+            $conn->commit();
+            error_log("Notifications marked as read successfully. Affected rows: $affected_rows");
+        } else {
+            $conn->rollback();
+            error_log("Failed to mark notifications as read: " . $conn->error);
+        }
+        // Redirect to the current page without the view_notifications parameter
+        $redirect_url = "supply_user.php?page=" . urlencode($page);
+        error_log("Redirecting to: $redirect_url");
+        header("Location: $redirect_url");
         exit;
     }
 
-    // Get notifications - modified to not use user_id since it doesn't exist in your table
-    $approved_notifications = $conn->query("SELECT * FROM borrow_requests WHERE status = 'approved' AND notified = 0");
-    $notif_count = $approved_notifications ? $approved_notifications->num_rows : 0;
-
-    // Mark notifications as read - modified to not use user_id
-    if (isset($_GET['view_notifications'])) {
-        $conn->query("UPDATE borrow_requests SET notified = 1 WHERE status = 'approved'");
-    }
-
-    // Start session if not already started
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Determine which page to show based on GET parameter
-        $page = isset($_GET['page']) ? $_GET['page'] : 'home';
-
-        // Initialize notification count
-        $unread_count = 0;
-        if (isset($conn)) {
-            // Count unread notifications
-            $notification_query = $conn->query("SELECT COUNT(*) as count FROM borrow_requests WHERE (status = 'approved' OR status = 'disapproved') AND user_notified = 0");
-            if ($notification_query) {
-                $unread_count = $notification_query->fetch_assoc()['count'];
-            }
-}
-    ?>
+?>
 </head>
 <body>
-
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="?page=home">
@@ -105,10 +134,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
                 </li>
                 <li class="nav-item">
                     <div class="notification-wrapper ms-3 mt-2">
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#userNotificationModal">
+                        <a href="?page=<?php echo htmlspecialchars($page); ?>&view_notifications=1" id="notification-bell" data-bs-toggle="modal" data-bs-target="#userNotificationModal">
                             <i class="fas fa-bell" style="color: white;"></i>
                             <?php if ($unread_count > 0): ?>
-                                <span class="badge" id="notification-badge"><?php echo $unread_count; ?></span>
+                                <span class="badge bg-danger" id="notification-badge"><?php echo $unread_count; ?></span>
                             <?php endif; ?>
                         </a>
                     </div>
@@ -352,6 +381,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
                     </div>
                 </div>
             </div>
+            <!-- History -->
             <div class="col-md-8">
                 <div class="card shadow">
                     <div class="card-header">
@@ -420,48 +450,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
         </div>
         
         <!-- Edit Profile Modal -->
-        <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
+        <div class="modal fade" id="userNotificationModal" tabindex="-1" aria-labelledby="userNotificationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Edit Profile</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="userNotificationModalLabel">
+                            <i class="fas fa-bell me-2"></i>Approved Requests
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form action="update_profile.php" method="POST">
-                            <div class="mb-3">
-                                <label for="edit_name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="edit_name" name="edit_name" value="<?php echo isset($_SESSION['user_name']) ? $_SESSION['user_name'] : ''; ?>">
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="edit_email" name="edit_email" value="<?php echo isset($_SESSION['user_email']) ? $_SESSION['user_email'] : ''; ?>">
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_user_type" class="form-label">User Type</label>
-                                <select class="form-control" id="edit_user_type" name="edit_user_type">
-                                    <option value="Faculty" <?php echo (isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'Faculty') ? 'selected' : ''; ?>>Faculty</option>
-                                    <option value="USG Officer" <?php echo (isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'USG Officer') ? 'selected' : ''; ?>>USG Officer</option>
-                                    <option value="SITE Officer" <?php echo (isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'SITE Officer') ? 'selected' : ''; ?>>SITE Officer</option>
-                                    <option value="PAFE Officer" <?php echo (isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'PAFE Officer') ? 'selected' : ''; ?>>PAFE Officer</option>
-                                    <option value="APROTECHS Officer" <?php echo (isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'APROTECHS Officer') ? 'selected' : ''; ?>>APROTECHS Officer</option>
-                                    <option value="Student" <?php echo (isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'Student') ? 'selected' : ''; ?>>Student</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="current_password" class="form-label">Current Password</label>
-                                <input type="password" class="form-control" id="current_password" name="current_password" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new_password" class="form-label">New Password (leave blank to keep current)</label>
-                                <input type="password" class="form-control" id="new_password" name="new_password">
-                            </div>
-                            <div class="mb-3">
-                                <label for="confirm_password" class="form-label">Confirm New Password</label>
-                                <input type="password" class="form-control" id="confirm_password" name="confirm_password">
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-                        </form>
+                        <ul class="list-group list-group-flush" id="notification-list">
+                        <?php
+                        $notifications = $conn->query("SELECT * FROM borrow_requests WHERE (status = 'approved' OR status = 'disapproved') AND user_notified = 0");
+                        if ($notifications && $notifications->num_rows > 0) {
+                            while ($req = $notifications->fetch_assoc()):
+                                $icon = $req['status'] === 'approved' ? 'fa-check-circle text-success' : 'fa-times-circle text-danger';
+                                $statusLabel = $req['status'] === 'approved' ? 'Approved' : 'Disapproved';
+                        ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas <?= $icon ?> me-2"></i>
+                                    <strong><?= htmlspecialchars($req['item_name']) ?></strong>
+                                    <span class="badge bg-secondary rounded-pill ms-2"><?= $statusLabel ?></span>
+                                </div>
+                                <small class="text-muted"><?= htmlspecialchars($req['updated_at'] ?? date('Y-m-d H:i:s')) ?></small>
+                            </li>
+                        <?php
+                            endwhile;
+                        } else {
+                            echo '<li class="list-group-item text-center">No new notifications</li>';
+                        }
+                        ?>
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -475,33 +499,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="userNotificationModalLabel">
-                    <i class="fas fa-bell me-2"></i>Approved Requests
+                    <i class="fas fa-bell me-2"></i>New Request Updates
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <ul class="list-group list-group-flush">
-                <?php
-                $notifications = $conn->query("SELECT * FROM borrow_requests WHERE (status = 'approved' OR status = 'disapproved') AND user_notified = 0");
-                if ($notifications && $notifications->num_rows > 0) {
-                    while ($req = $notifications->fetch_assoc()):
-                        $icon = $req['status'] === 'approved' ? 'fa-check-circle text-success' : 'fa-times-circle text-danger';
-                        $statusLabel = $req['status'] === 'approved' ? 'Approved' : 'Disapproved';
-                ?>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="fas <?= $icon ?> me-2"></i>
-                            <strong><?= htmlspecialchars($req['item_name']) ?></strong> 
-                            <span class="badge bg-secondary rounded-pill ms-2"><?= $statusLabel ?></span>
-                        </div>
-                        <small class="text-muted"><?= htmlspecialchars($req['updated_at'] ?? date('Y-m-d H:i:s')) ?></small>
-                    </li>
-                <?php
-                    endwhile;
-                } else {
-                    echo '<li class="list-group-item text-center">No new notifications</li>';
-                }
-                ?>
+                <ul class="list-group list-group-flush" id="notification-list">
+                    <?php
+                    $notifications = $conn->query("SELECT * FROM borrow_requests WHERE (status = 'approved' OR status = 'disapproved') AND user_notified = 0 ORDER BY updated_at DESC");
+                    if ($notifications && $notifications->num_rows > 0) {
+                        while ($req = $notifications->fetch_assoc()) {
+                            $icon = $req['status'] === 'approved' ? 'fa-check-circle text-success' : 'fa-times-circle text-danger';
+                            $statusLabel = ucfirst($req['status']);
+                            ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas <?= $icon ?> me-2"></i>
+                                    <strong><?= htmlspecialchars($req['item_name']) ?></strong>
+                                    <span class="badge bg-secondary rounded-pill ms-2"><?= $statusLabel ?></span>
+                                </div>
+                                <small class="text-muted"><?= date('M d, Y H:i', strtotime($req['updated_at'] ?? $req['created_at'])) ?></small>
+                            </li>
+                            <?php
+                        }
+                    } else {
+                        echo '<li class="list-group-item text-center">No new notifications</li>';
+                    }
+                    ?>
                 </ul>
             </div>
             <div class="modal-footer">
@@ -523,28 +547,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrow_request'])) {
 
 <!-- Font Awesome -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-    
+            
 <!-- Notification Script -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const userModal = document.getElementById('userNotificationModal');
-    if (userModal) {
-        userModal.addEventListener('shown.bs.modal', function () {
-            fetch('mark_user_notifications_read.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        const badge = document.getElementById('notification-badge');
-                        if (badge) badge.remove();
+
+       <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('userNotificationModal');
+            const notificationList = document.getElementById('notification-list');
+
+            if (modal && notificationList) {
+                modal.addEventListener('hidden.bs.modal', () => {
+                    // Clear the notification list
+                    notificationList.innerHTML = '<li class="list-group-item text-center">No new notifications</li>';
+                    // Remove badge
+                    const badge = document.getElementById('notification-badge');
+                    if (badge) {
+                        badge.remove();
                     }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
                 });
+            }
         });
-    }
-});
-</script>
+        </script>
 </div>
 
 </body>
