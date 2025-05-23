@@ -1,0 +1,4 @@
+ID,"Student ID","Full Name",Email,Course,"Year Level","Family Income",Document,"Scholarship Program",Status,"Applied At"
+3,2022,"John Doe B. Smith",John@gmail.com,bsit,"2nd Year",114.00,,OFOP,Approved,"2025-05-11 19:58:20"
+8,2018,Kath,kath@gmail.com,BTLED,"4th Year",276.00,,OFOP,Pending,"2025-05-12 03:22:26"
+9,2018,Kath,kath@gmail.com,BTLED,"4th Year",276.00,,"SM Scholarships",Pending,"2025-05-12 16:03:59"

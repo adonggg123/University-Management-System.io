@@ -1,0 +1,168 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fdfdfd;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  width: 100%; /* Full width */
+  background:  url('Image/bg.jpg') no-repeat center center/cover;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  color: rgb(212, 0, 0);
+  overflow: hidden;
+  background-size: cover; /* Ensures the image covers the whole section */
+  background-position: center center; /* Keeps the image centered */
+}
+
+
+.hero-section .overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(103, 109, 110, 0.45); /* optional dark overlay */
+  z-index: 0;
+}
+
+.hero-section .container {
+  z-index: 1;
+  position: relative;
+}
+
+.hero-section h1 {
+  font-size: 2.5rem;
+}
+.hero-section .container .row {
+  justify-content: flex-start !important;
+}
+
+
+
+
+@media (min-width: 768px) {
+  .hero-section h1 {
+    font-size: 3rem;
+  }
+}
+
+
+.btn-book {
+  background-color: #afafaf;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.btn-book:hover {
+  background-color: #009e8f;
+}
+
+/* Underline Animate */
+.underline-animate {
+  position: relative;
+  display: inline-block;
+  color: #000;
+}
+
+.underline-animate::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 4px;
+  left: 0;
+  bottom: 0;
+  background-color: #fdd835;
+  transition: width 0.5s ease-in-out;
+}
+
+.underline-animate:hover::after {
+  width: 100%;
+}
+
+/* Navbar Logo Adjustments */
+.navbar-brand img {
+  vertical-align: middle;
+}
+
+
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+table {
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Adjust Table Width */
+.table-responsive {
+  max-width: 90%; /* Sets the maximum width to 90% of the container */
+  margin: 0 auto; /* Centers the table */
+}
+
+.table {
+  width: 100%; /* Ensures the table takes full width within its container */
+}
+
+.table th, .table td {
+  padding: 8px 12px; /* Adjust padding for a smaller table */
+  font-size: 0.9rem; /* Slightly smaller font */
+}
+.card {
+  border-radius: 1rem;
+}
+
+.footer-section {
+  position: relative;
+  background: url("Image/footer.jpg") no-repeat center center/cover;
+  color: white;
+  padding-top: 60px;
+  padding-bottom: 40px;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Overlay with #00bfa5 color and transparency */
+.footer-section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85); /* #00bfa5 with 85% opacity */
+  z-index: 0;
+}
+
+.footer-section .container,
+.footer-section h5,
+.footer-section p,
+.footer-section a,
+.footer-section i {
+  position: relative;
+  z-index: 1;
+}
+
+.footer-section a {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.footer-section a:hover {
+  text-decoration: underline;
+}
+
+.footer-icon {
+  margin-right: 8px;
+  color: #ffffff;
+}

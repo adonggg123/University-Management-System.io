@@ -1,0 +1,153 @@
+/* External Stylesheet for Admin Dashboard */
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+  }
+  
+  .card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .card:hover {
+    transform: scale(1.02);
+  }
+  
+  .card-title {
+    font-weight: 600;
+    color: #0d6efd;
+  }
+  
+  .card-text {
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+  
+  @media (max-width: 576px) {
+    .card-text {
+      font-size: 1.2rem;
+    }
+  
+    .card-title {
+      font-size: 1rem;
+    }
+  }
+  
+  canvas {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  h5.card-title::after {
+    content: "";
+    display: block;
+    width: 50px;
+    height: 3px;
+    background-color: #ffc107;
+    margin-top: 5px;
+    border-radius: 3px;
+  }
+  
+  /* New Header Styles */
+  header {
+    z-index: 1050; /* Ensure it stays on top */
+    transition: top 0.3s ease; /* Smooth transition when hiding/showing the header */
+  }
+  
+  header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  header .brand-name {
+    font-weight: 600;
+  }
+  
+  header .dropdown-toggle {
+    font-weight: 600;
+  }
+  
+  header .dropdown-menu {
+    border-radius: 1rem;
+  }
+  
+  header .dropdown-item {
+    font-weight: 500;
+  }
+  
+  header .dropdown-item:hover {
+    background-color: #0d6efd;
+    color: white;
+  }
+  
+  header .nav-link img {
+    border-radius: 50%;
+  }
+  
+  /* Navbar below the header */
+  .navbar-nav {
+    flex-grow: 1;
+  }
+  
+  .d-flex {
+    display: flex;
+  }
+  
+  .ms-auto {
+    margin-left: auto;
+  }
+  
+  .navbar-nav .nav-link {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  /* Notification Icon */
+  .bi-bell {
+    font-size: 1.5rem;
+  }
+  
+  /* Sticky Navbar */
+  .navbar {
+    margin-top: 80px; /* Adjust margin to avoid overlap with fixed header */
+  }
+/* Notification Panel Styles */
+.notification-panel {
+  position: fixed;
+  top: 0;
+  right: -350px;
+  width: 300px;
+  height: 100%;
+  background-color: #f8f9fa;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  transition: right 0.3s ease;
+  z-index: 1050;
+  padding: 1rem;
+}
+
+.notification-panel.show {
+  right: 0;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.notification-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #dee2e6;
+}

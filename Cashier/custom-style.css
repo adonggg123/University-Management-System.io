@@ -1,0 +1,62 @@
+/* custom-style.css */
+body {
+    padding-top: 56px; /* For fixed Bootstrap navbar */
+    background-color: #f8f9fa; /* Default light gray background */
+}
+
+/* New Primary Theme Color Variables */
+:root {
+    --ums-primary-rgb: 2, 22, 67;
+    --ums-primary-hex: #021643;
+    --ums-primary-hover-hex: #010f30; /* Darker shade for hover */
+}
+
+/* Override Bootstrap's primary button styles */
+.btn-primary {
+    background-color: var(--ums-primary-hex) !important;
+    border-color: var(--ums-primary-hex) !important;
+    color: #ffffff !important;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background-color: var(--ums-primary-hover-hex) !important;
+    border-color: var(--ums-primary-hover-hex) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-primary {
+    color: var(--ums-primary-hex) !important;
+    border-color: var(--ums-primary-hex) !important;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active {
+    background-color: var(--ums-primary-hex) !important;
+    color: #ffffff !important;
+}
+
+/* Custom Navbar Theme */
+.navbar-ums-theme {
+    background-color: var(--ums-primary-hex) !important;
+}
+
+.navbar-ums-theme .navbar-brand,
+.navbar-ums-theme .nav-link {
+    color: #ffffff !important;
+}
+
+.navbar-ums-theme .nav-link:hover,
+.navbar-ums-theme .nav-link:focus {
+    color: #e0e0e0 !important; /* Lighter text color for navbar link hover */
+}
+
+.navbar-ums-theme .nav-link.active {
+    font-weight: bold;
+    /* Consider a slightly different color or just bold for active, white is fine */
+}
+
+/* If any text needs to be the primary color */
+.text-ums-primary {
+    color: var(--ums-primary-hex) !important;
+} 

@@ -1,0 +1,255 @@
+body {
+    background: #eef1f5; /* Light, cool grey-blue backdrop */
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333740; /* Dark, desaturated blue-grey for main text */
+}
+.login-container, .dashboard-container {
+    background: #fff;
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 2em 2.5em;
+    border-radius: 8px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.1); /* Slightly more pronounced shadow */
+    border: 1px solid #dde2e6; /* Subtle border for panel feel */
+}
+
+.login-container h2,
+.dashboard-container h2 {
+    text-align: center;
+    margin-bottom: 1.5em;
+    color: #2c3e50; /* Strong, professional dark blue/grey */
+}
+
+.dashboard-container p {
+    text-align: center;
+    margin-bottom: 1.5em;
+    color: #5a6270; /* Softer grey for secondary text */
+}
+
+label {
+    display: block;
+    margin: 1em 0 0.3em;
+    color: #333740; /* Consistent with main text */
+    font-weight: 500; /* Slightly bolder labels */
+}
+input[type="text"], input[type="password"], textarea {
+    width: 100%;
+    padding: 0.75em; /* Slightly more padding */
+    margin-bottom: 1em;
+    border: 1px solid #ced4da; /* Neutral grey border */
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box;
+    background-color: #f8f9fa; /* Light background for inputs */
+}
+input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+    border-color: #4CAF50; /* Green border on focus */
+    box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25); /* Green glow on focus */
+    background-color: #fff;
+}
+
+button {
+    width: 100%;
+    padding: 0.9em 1em; /* Increased padding */
+    background: #4CAF50; /* Primary green */
+    color: #fff;
+    border: none;
+    /* border-top: 1px solid rgba(255,255,255,0.2); Removed for flatter modern look */
+    border-radius: 4px;
+    font-size: 1em;
+    font-weight: 500; /* Bolder button text */
+    cursor: pointer;
+    margin-top: 0.5em;
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+button:hover {
+    background: #45a049; /* Darker green on hover */
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3); /* Subtle green glow */
+}
+.error {
+    background: #f8d7da; /* Softer red */
+    color: #721c24;
+    padding: 0.75em 1em;
+    border-radius: 4px;
+    margin-bottom: 1em;
+    border: 1px solid #f5c6cb;
+    text-align: left;
+}
+
+.success {
+    background: #d4edda; /* Softer green */
+    color: #155724;
+    padding: 0.75em 1em;
+    border-radius: 4px;
+    margin-bottom: 1em;
+    border: 1px solid #c3e6cb;
+    text-align: left;
+}
+
+nav {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    border-bottom: 1px solid #dde2e6; /* Lighter border */
+    padding-bottom: 1em;
+}
+nav a {
+    margin: 0 0.2em;
+    color: #4CAF50; /* Green for nav links */
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+nav a:hover {
+    text-decoration: none;
+    background-color: #e8f5e9; /* Very light green background */
+    color: #388E3C; /* Darker green text */
+}
+
+/* Search form styling */
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 1.5em;
+}
+.search-form input[type="text"] {
+    flex-grow: 1;
+    margin-bottom: 0;
+}
+.search-form button {
+    width: auto;
+    margin-top: 0;
+    padding: 0.75em 1.2em; /* Adjusted to match input padding */
+}
+
+/* Responsive tables for overflow */
+.students-table, .orders-table, .receipts-table, .refunds-table, .payments-table, .users-table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    margin-top: 1.5em;
+    table-layout: auto;
+    word-break: break-word;
+    overflow-x: auto;
+    display: block;
+    border: 1px solid #dde2e6; /* Border around table */
+    border-radius: 4px; /* Rounded corners for table */
+}
+
+.students-table th, .students-table td,
+.orders-table th, .orders-table td,
+.receipts-table th, .receipts-table td,
+.refunds-table th, .refunds-table td,
+.payments-table th, .payments-table td,
+.users-table th, .users-table td {
+    border: none;
+    border-bottom: 1px solid #dde2e6; /* Lighter row separator */
+    padding: 0.8em 0.7em; /* Adjusted padding */
+    text-align: left;
+    white-space: normal;
+}
+
+/* Remove bottom border from last row in a table body */
+.students-table tbody tr:last-child td,
+.orders-table tbody tr:last-child td,
+.receipts-table tbody tr:last-child td,
+.refunds-table tbody tr:last-child td,
+.payments-table tbody tr:last-child td,
+.users-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.students-table th, .orders-table th, .receipts-table th, .refunds-table th, .payments-table th, .users-table th {
+    background: #f1f4f7; /* Light neutral grey-blue for headers */
+    font-weight: 600;
+    color: #2c3e50; /* Match heading color */
+}
+
+/* Zebra striping for tables */
+.students-table tbody tr:nth-child(odd),
+.orders-table tbody tr:nth-child(odd),
+.receipts-table tbody tr:nth-child(odd),
+.refunds-table tbody tr:nth-child(odd),
+.payments-table tbody tr:nth-child(odd),
+.users-table tbody tr:nth-child(odd) {
+    background-color: #f8f9fc; /* Even lighter for striping */
+}
+
+/* Hover effect for table rows */
+.students-table tbody tr:hover,
+.orders-table tbody tr:hover,
+.receipts-table tbody tr:hover,
+.refunds-table tbody tr:hover,
+.payments-table tbody tr:hover,
+.users-table tbody tr:hover {
+    background-color: #e8f5e9; /* Light green tint on hover */
+}
+
+textarea.refund-form-textarea {
+    min-height: 60px;
+}
+
+/* Add Student Form styling */
+.add-student-form {
+    margin-top: 2em;
+    padding: 1.5em;
+    border: 1px solid #dde2e6; /* Consistent border */
+    border-radius: 6px;
+    background-color: #f8f9fc; /* Slightly off-white */
+}
+
+.add-student-form h3 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 1.5em;
+    color: #2c3e50; /* Match heading color */
+}
+
+.add-student-form label {
+    margin-bottom: 0.2em;
+    font-weight: 500;
+}
+
+/* General form group styling */
+.form-group {
+    margin-bottom: 1em;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3em;
+}
+
+.add-student-form .form-group input[type="text"],
+.add-student-form .form-group input[type="number"] {
+    margin-bottom: 0;
+}
+
+/* Responsive: allow horizontal scroll on small screens */
+@media (max-width: 900px) {
+    .login-container, .dashboard-container {
+        max-width: 98vw;
+        padding: 1.5em 1em; /* Adjusted padding */
+        margin-top: 20px; /* Less margin on small screens */
+        margin-bottom: 20px;
+    }
+    .students-table, .orders-table, .receipts-table, .refunds-table, .payments-table, .users-table {
+        min-width: auto; /* Allow table to be responsive, overflow handles scroll */
+        font-size: 0.9em; /* Slightly smaller font in tables */
+    }
+    .search-form {
+        flex-direction: column; /* Stack search input and button */
+        gap: 0.8em;
+    }
+    .search-form input[type="text"],
+    .search-form button {
+        width: 100%; /* Full width for stacked items */
+    }
+    button {
+        padding: 0.8em 0.9em; /* Adjust button padding for smaller screens */
+    }
+}

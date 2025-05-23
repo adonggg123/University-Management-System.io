@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Cedarville+Cursive&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*
+{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body
+{
+    font-family: 'Poppins';
+}
+
+menu
+{
+    background: #f6f6f6;
+    margin-top: 20px;
+   max-width: 1200px;
+    
+}
+.nav
+{
+    max-width: 1900px;
+    display: flex;
+    align-items: center;
+    gap: 450px;
+    margin-left: 25px;
+}
+.nav a
+{
+    text-decoration: none;
+    color: #0B1215;
+    background-color: #fb8500;
+    border-radius: 6px;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.2  );
+    padding: 5px;
+}
+#menu .menu-container
+{
+    /* display: grid;
+    flex-direction: column; */
+}
+#menu h1
+{
+    text-align: center;
+    color: #0B1215;
+    font-size: 3em;
+    /* font-family: "Miniver", cursive; */
+    
+}
+#menu nav
+{
+    align-items: center;
+}
+ #menu .menu-content
+{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    justify-content: space-between;
+    align-items: center;
+    color: #0B1215;
+    margin: 30px;
+    align-items: center;
+}
+.menu-container input
+{
+    margin-left: 25px;
+    width: 200px;
+    outline: none;
+    height: 30px;
+    border-radius: 8px;
+    border: none;
+    color: #0B1215;
+}
+.menu-container input:focus
+{
+    border: 2px solid #3b141c;
+}
+.view {
+    display: block;
+    margin: 20px auto; /* centers the button horizontally */
+    padding: 10px 20px;
+    background-color: #fb8500; /* optional styling */
+    color: black;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    width: 130px;
+    height: 40px;
+    font-size: 0.8em;
+}
+
+.view a {
+    color: #0B1215;
+    text-decoration: none;
+}
+
+#menu .menu-content .item span
+{
+    color:#fb8500;
+}
+#menu .menu-content .item
+{
+    display: flex;
+    align-items: center;
+    text-align: center;
+    flex-direction: column;
+    justify-content: space-between;
+    width: calc(100% / 4 - 70px);
+    color: #0B1215;
+    padding: 30px;
+    background-color: #EEEEE6;
+    border-radius: 20px;
+    cursor: pointer; 
+    gap: 1rem;
+    
+    
+    
+}
+#menu .menu-content .item img
+{
+    width: 83%;
+    aspect-ratio: 1;
+    height: 60%;
+    filter: drop-shadow(0 50px 20px #0009);
+} 
