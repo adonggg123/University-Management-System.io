@@ -9,7 +9,7 @@ if ($conn->connect_error) {
   die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT name, price, image FROM products";
+$sql = "SELECT name, price, image FROM products_fh";
 $result = $conn->query($sql);
 
 $products = [];

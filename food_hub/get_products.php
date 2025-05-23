@@ -24,6 +24,5 @@ $products = [];
 while ($row = $result->fetch_assoc()) {
     $products[] = $row;
 }
-
 echo json_encode($products);
-?>
+exit;
