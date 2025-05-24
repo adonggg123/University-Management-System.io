@@ -2,7 +2,7 @@
 // check_new_orders.php
 $host = "localhost";
 $user = "root";
-$pass = "";
+$pass = "quest4inno@server";
 $db = "university_management_system";
 
 $conn = new mysqli($host, $user, $pass, $db);

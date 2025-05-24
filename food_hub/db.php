@@ -2,7 +2,7 @@
 $host = 'localhost';
 $dbname = 'university_management_system';
 $username = 'root'; // use your database username
-$password = ''; // use your database password
+$password = 'quest4inno@server'; // use your database password
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);

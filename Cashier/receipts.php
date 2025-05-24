@@ -15,7 +15,7 @@ if (!isset($_SESSION['role'])) {
 $host = 'localhost';
 $db   = 'university_management_system';
 $user = 'root';
-$pass = '';
+$pass = 'quest4inno@server';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";

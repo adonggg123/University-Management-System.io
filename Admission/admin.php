@@ -1,7 +1,7 @@
 <?php
 $host = "localhost";
 $user = "root";
-$pass = "";
+$pass = "quest4inno@server";
 $dbname = "university_management_system";
 
 $conn = new mysqli($host, $user, $pass, $dbname);

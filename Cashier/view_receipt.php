@@ -3,7 +3,7 @@ session_start();
 $host = "localhost";
 $dbname = "university_management_system";
 $user = "root";
-$pass = "";
+$pass = "quest4inno@server";
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $user, $pass);

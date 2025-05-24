@@ -1,5 +1,5 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "university_management_system");
+$conn = new mysqli("localhost", "root", "quest4inno@server", "university_management_system");
 
 $result = $conn->query("SELECT * FROM contact_messages ORDER BY submitted_at DESC");
 

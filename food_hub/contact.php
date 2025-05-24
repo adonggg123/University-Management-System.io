@@ -3,7 +3,7 @@
 $host = "localhost";
 $dbname = "university_management_system";
 $username = "root";
-$password = ""; // replace with your DB password
+$password = "quest4inno@server"; // replace with your DB password
 
 // Create connection
 $conn = new mysqli($host, $username, $password, $dbname);

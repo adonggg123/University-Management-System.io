@@ -1,7 +1,7 @@
 <?php
 $host = "localhost";
 $user = "root";
-$password = "";  // Leave blank for XAMPP default
+$password = "quest4inno@server";  // Leave blank for XAMPP default
 $db = "university_management_system";
 
 $conn = mysqli_connect($host, $user, $password, $db);

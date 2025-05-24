@@ -1,6 +1,6 @@
 <?php
 // Connect to DB
-$conn = new mysqli('localhost', 'root', '', 'university_system');
+$conn = new mysqli('localhost', 'root', 'quest4inno@server', 'university_system');
 $id = $_GET['id'] ?? 0;
 
 $query = mysqli_query($conn, "SELECT * FROM student_applications WHERE id = $id");

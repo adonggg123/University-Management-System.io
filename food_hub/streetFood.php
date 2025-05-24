@@ -276,12 +276,11 @@
 </body>
 </html>-->
 <?php
-header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Database connection
-$mysqli = new mysqli('localhost', 'root', '', 'university_management_system');
+$mysqli = new mysqli('localhost', 'root', 'quest4inno@server', 'university_management_system');
 
 if ($mysqli->connect_error) {
     http_response_code(500);
@@ -302,7 +301,7 @@ $products = [];
 while ($row = $result->fetch_assoc()) {
     $products[] = $row;
 }
-echo json_encode($products);
+//echo json_encode($products);
 ?>
 
 <!DOCTYPE html>

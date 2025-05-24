@@ -1,8 +1,8 @@
 <?php
 $servername = "localhost";
 $username = "root";
-$password = "";
-$dbname = "clinic_management";
+$password = "quest4inno@server";
+$dbname = "university_management_system"
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
